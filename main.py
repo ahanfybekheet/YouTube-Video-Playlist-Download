@@ -1,11 +1,11 @@
 #-------------------------------------------------------------------
 # YouTube (Video/Playlist) Download.
-# Author        : Ahmed Hanfy Bekheet
+# Author        : Ahmed Hanfy Bekheet && 
 # Version       : 1.0
 # Python Version: 3.9.10
 # Date          : 3/7/2022
 #-------------------------------------------------------------------
-#The User InterFace:
+# The User InterFace:
 #   +------------+--------------------------------+
 #   |     1      |             Video              |
 #   |     2      |            Playlist            |
@@ -37,19 +37,25 @@ def user_interface():
     table = PrettyTable(["Choose num","What Do You Want To Download ?"])
     table.add_row(["1","Video"])
     table.add_row(["2","Playlist"])
+    table.add_row(["3","Audio"])
+    table.add_row(["4","Playlist As Audio"])
     print(table)
 
     while True:
         try:
             user_input = input()
-            if user_input == '1' or user_input == '2' or user_input == '0.0':
+            if user_input in ["1","2","3","4"]:
                 break
         except:
             print("Please Enter Int Num")
     if user_input == '1':
-        download_video()
+        download_video("video")
     elif  user_input =="2":
-        download_playlist()
+        download_playlist("video")
+    elif user_input == '3':
+        download_video("audio")
+    elif  user_input =="4":
+        download_playlist("audio")
     else:
         guid()
 
@@ -65,7 +71,7 @@ def choose_path():
         table = PrettyTable()
         table.add_column("Index",list(range(1,len(sub_dirs[0])+1)))
         table.add_column("Folders",sub_dirs[0])
-        table.add_row("The Current Path Is: ",os.getcwd())
+        table.add_row(["The Current Path Is: ",os.getcwd()])
         print(table)
         #Start Of Validating input of user to make sure that there is no error will raise
         try:
@@ -100,7 +106,7 @@ def choose_quality():
 
     # Create Good Design Table To Choose Quality
     table = PrettyTable()
-    vid_res = {1:"144p",2:"240p",3:"360p",4:"480p",5:"720p"}
+    vid_res = {1:"144p",2:"360p",3:"720p"}
     table.add_column("Choose num",list(vid_res.keys()))
     table.add_column("Video resolution",list(vid_res.values()))
     print(table)
@@ -133,27 +139,31 @@ def guid():
         quit()
     
 
-def download_video():
+def download_video(Type):
     url = input("please enter url of video: ".title())
     try:
         video = YouTube(url)
     except:
         print("Please, Enter Valid Youtube Video Url!!..\nAnd Try Again.")
-        download_video()
+        download_video(Type)
     choose_path()
-    choose_quality()
     print(video.title)
-    video.streams.filter(res=quality,mime_type="video/mp4").last().download()
+    if Type == 'video':
+        choose_quality()
+        video.streams.filter(res=quality,progressive=True).last().download()
+    else:
+        video.streams.filter(type="audio").last().download()
 
-def download_playlist():
+def download_playlist(Type):
     url = input("please Enter playlist url: ".title())
     try:
         playlist= Playlist(url)
     except:
         print("Please, Enter Valid Youtube Playlist Url!!..\nAnd Try Again.")
-        download_playlist()
+        download_playlist(Type)
     choose_path()
-    choose_quality()
+    if Type == 'video':
+        choose_quality()
     videos_title = [YouTube(video).title for video in playlist]
     table = PrettyTable()
     table.add_column("Index",list(range(1,len(playlist)+1)))
@@ -164,8 +174,9 @@ def download_playlist():
         try:
             user_input = list(map(int,input(f"Please Enter Your Wanted Videos Seperated By Comma (e.g:3,5,6,7): ").split(',')))
             valid_input = [x for x in user_input if x >= 1 and x <= len(playlist)+1 ]
-            if valid_input and len(playlist) not in valid_input:
-                break
+            if valid_input:
+                if not(len(playlist)+1 in valid_input):
+                    break
             else:
                 print("Please Follow Instructions!!..")
         except:
@@ -174,13 +185,18 @@ def download_playlist():
         for vid in playlist:
             video = YouTube(vid)
             print(video.title)
-            video.streams.filter(res=quality,mime_type="video/mp4").last().download()
+            if Type == 'video':
+                video.streams.filter(res=quality,progressive=True).last().download()
+            else:
+                video.streams.filter(type="audio").last().download()
     else:
         for i in user_input:
             video = YouTube(playlist[i-1])
             print(video.title)
-            video.streams.filter(res=quality,mime_type="video/mp4").last().download()
-
+            if Type == 'video':
+                video.streams.filter(res=quality,progressive=True).last().download()
+            else:
+                video.streams.filter(type="audio").last().download()
 
 
 
