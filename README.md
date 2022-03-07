@@ -6,9 +6,9 @@ youTube (video/playlist) download is an application developed by python to downl
 
 - If It Your First Time To Use This App Enter 0.0 .
 - +------------+--------------------------------+
-|     1      |             Video              |
-|     2      |            Playlist            |
-+------------+--------------------------------+
+- |     1      |             Video              |
+- |     2      |            Playlist            |
+- +------------+--------------------------------+
 
 ## Features
   - [x] The App Is Well Designed And Commented.
