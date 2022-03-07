@@ -17,8 +17,13 @@ If It Your First Time To Use This App Enter 0.0 .
   - When You Download Video:
     - [x] choose your download path.
     - [x] choose your quality.
+    - [x] choose if you want video or audio.
   
   - When You Download Playlist:
     - [x] choose your wanted videos from this playlist.
     - [x] choose your path.
     - [x] choose your quality.
+    - [x] choose if you want video or audio.
+  
+  - When You Choose Playlist Duration:
+    - [x] choose your wanted videos from this playlist. 
