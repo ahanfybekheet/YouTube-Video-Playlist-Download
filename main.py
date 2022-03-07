@@ -33,29 +33,35 @@ import os
 
 
 def user_interface():
+
     print("if it your first time to use this app enter 0.0 .\n".title())
     table = PrettyTable(["Choose num","What Do You Want To Download ?"])
     table.add_row(["1","Video"])
     table.add_row(["2","Playlist"])
     table.add_row(["3","Audio"])
     table.add_row(["4","Playlist As Audio"])
+    table.add_row(["5","Playlist Time"])
     print(table)
 
     while True:
         try:
             user_input = input()
-            if user_input in ["1","2","3","4"]:
+            if user_input in ["1","2","3","4","5"]: ##valid input list
                 break
+            else:
+                print("Please Choose Valid Number")
         except:
             print("Please Enter Int Num")
     if user_input == '1':
-        download_video("video")
+        download_video("video")         ## call download video function as video
     elif  user_input =="2":
-        download_playlist("video")
+        download_playlist("video")      ## call download playlist function as video
     elif user_input == '3':
-        download_video("audio")
-    elif  user_input =="4":
-        download_playlist("audio")
+        download_video("audio")         ## call download video function as audio
+    elif user_input == "4":
+        download_playlist("audio")      ## call download playlist function as audio
+    elif user_input == "5":
+        download_playlist("time")       ## call download playlist function as time
     else:
         guid()
 
@@ -66,10 +72,10 @@ def choose_path():
     # Show the directories and make user to choose one from it
     while True:
         print("To Select Folder enter 0.\nEnter -1 To Create New Folder.\nEnter -2 To Go Back\n ".title())
-        sub_dirs = [[dir.name for dir in os.scandir() if dir.is_dir() ],[dir.path for dir in os.scandir() if dir.is_dir()]]
+        sub_dirs = [[dir.name for dir in os.scandir() if dir.is_dir() ],[dir.path for dir in os.scandir() if dir.is_dir()]] ##first list to make dir list with name seconde one is to make list with pathes
 
         table = PrettyTable()
-        table.add_column("Index",list(range(1,len(sub_dirs[0])+1)))
+        table.add_column("Index",list(range(1,len(sub_dirs[0])+1))) ##list(range(1,len(sub_dirs[0])+1)) make range equal to len dirs in current path
         table.add_column("Folders",sub_dirs[0])
         table.add_row(["The Current Path Is: ",os.getcwd()])
         print(table)
@@ -159,10 +165,12 @@ def download_playlist(Type):
     url = input("please Enter playlist url: ".title())
     try:
         playlist= Playlist(url)
+        len(playlist.video_urls) ### To raise Error if url is not valid
     except:
         print("Please, Enter Valid Youtube Playlist Url!!..\nAnd Try Again.")
         return download_playlist(Type)
-    choose_path()
+    if Type != "time":
+        choose_path()
     if Type == 'video':
         choose_quality()
     videos_title = [YouTube(video).title for video in playlist]
@@ -171,34 +179,48 @@ def download_playlist(Type):
     table.add_column("Videos",videos_title)
     table.add_row([len(playlist)+1,"Select All"])
     print(table)
+
+    ##Start of validating user input
     while True:
         try:
             user_input = list(map(int,input(f"Please Enter Your Wanted Videos Seperated By Comma (e.g:3,5,6,7): ").split(',')))
             valid_input = [x for x in user_input if x >= 1 and x <= len(playlist)+1 ]
             if valid_input:
-                if not(len(playlist)+1 in valid_input):
+                if not(len(playlist)+1 in valid_input and len(valid_input)>1) :
                     break
+                else:
+                    print("Please Enter Valid Input")
             else:
                 print("Please Follow Instructions!!..")
         except:
             print('Please Enter Int Number')
+    ##end of validating
+    time = 0     ### to add time of each video to it
+    ## If user choose select all option
     if user_input == [len(playlist)+1]:
         for vid in playlist:
             video = YouTube(vid)
             print(video.title)
             if Type == 'video':
                 video.streams.filter(res=quality,progressive=True).last().download()
-            else:
+            elif Type == 'audio':
                 video.streams.filter(type="audio").last().download()
+            else:
+                time += video.length
+    ## If user choose collection of videos
     else:
         for i in user_input:
             video = YouTube(playlist[i-1])
             print(video.title)
             if Type == 'video':
                 video.streams.filter(res=quality,progressive=True).last().download()
-            else:
+            elif Type == 'audio':
                 video.streams.filter(type="audio").last().download()
-
+            else:
+                time += video.length
+    ## If user choose time To print Time of playlist
+    if Type == 'time':
+        print(f"The Video Duration Is {time/60} min")
 
 
 if __name__ == '__main__':
