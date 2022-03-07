@@ -80,9 +80,10 @@ def choose_path():
                 if user_input >= -2 and user_input <= len(sub_dirs[0]):
                     break
                 else:
-                    print(f"Please Enter Int Between -1 to {len(sub_dirs[0])}.\n")
+                    print(f"Please Enter Int Between -2 to {len(sub_dirs[0])}.\n")
         except:
-            print("Please Enter Int Number.\n")
+            print("Please Enter Int Number.\nAnd Try Agian!!..")
+            return choose_path()
         #End Of Validating
 
         ### Create New Folder And Change Dir To That Folder When User Enter -1
@@ -145,7 +146,7 @@ def download_video(Type):
         video = YouTube(url)
     except:
         print("Please, Enter Valid Youtube Video Url!!..\nAnd Try Again.")
-        download_video(Type)
+        return download_video(Type)
     choose_path()
     print(video.title)
     if Type == 'video':
@@ -160,7 +161,7 @@ def download_playlist(Type):
         playlist= Playlist(url)
     except:
         print("Please, Enter Valid Youtube Playlist Url!!..\nAnd Try Again.")
-        download_playlist(Type)
+        return download_playlist(Type)
     choose_path()
     if Type == 'video':
         choose_quality()
