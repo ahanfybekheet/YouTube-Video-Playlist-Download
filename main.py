@@ -26,8 +26,10 @@
 
 from pytube import Playlist
 from pytube import YouTube
+from pytube import Search
 from prettytable import PrettyTable
 import os
+
 
 
 
@@ -41,12 +43,13 @@ def user_interface():
     table.add_row(["3","Audio"])
     table.add_row(["4","Playlist As Audio"])
     table.add_row(["5","Playlist Time"])
+    table.add_row(["6","Use Search To Download Your Video"])
     print(table)
 
     while True:
         try:
             user_input = input()
-            if user_input in ["1","2","3","4","5"]: ##valid input list
+            if user_input in ["1","2","3","4","5","6"]: ##valid input list
                 break
             else:
                 print("Please Choose Valid Number")
@@ -62,6 +65,8 @@ def user_interface():
         download_playlist("audio")      ## call download playlist function as audio
     elif user_input == "5":
         download_playlist("time")       ## call download playlist function as time
+    elif user_input == "6":
+        search()
     else:
         guid()
 
@@ -72,7 +77,7 @@ def choose_path():
     # Show the directories and make user to choose one from it
     while True:
         print("To Select Folder enter 0.\nEnter -1 To Create New Folder.\nEnter -2 To Go Back\n ".title())
-        sub_dirs = [[dir.name for dir in os.scandir() if dir.is_dir() ],[dir.path for dir in os.scandir() if dir.is_dir()]] ##first list to make dir list with name seconde one is to make list with pathes
+        sub_dirs = [[dir.name for dir in os.scandir() if dir.is_dir() ],[dir.path for dir in os.scandir() if dir.is_dir()]] ##first list to make dir list with name seconde one is to make list with pathes.
 
         table = PrettyTable()
         table.add_column("Index",list(range(1,len(sub_dirs[0])+1))) ##list(range(1,len(sub_dirs[0])+1)) make range equal to len dirs in current path
@@ -105,7 +110,6 @@ def choose_path():
             break
         else:
             os.chdir(sub_dirs[1][user_input-1])
-
 
 
 def choose_quality():
@@ -146,7 +150,7 @@ def guid():
         quit()
     
 
-def download_video(Type):
+def download_video(Type,):
     url = input("please enter url of video: ".title())
     try:
         video = YouTube(url)
@@ -184,7 +188,8 @@ def download_playlist(Type):
     while True:
         try:
             user_input = list(map(int,input(f"Please Enter Your Wanted Videos Seperated By Comma (e.g:3,5,6,7): ").split(',')))
-            valid_input = [x for x in user_input if x >= 1 and x <= len(playlist)+1 ]
+            user_input =set(user_input)  ### To Remove Repeated Elements
+            valid_input = [x for x in user_input if x >= 1 and x <= len(playlist)+1 ] ## Add Only Valid Input 
             if valid_input:
                 if not(len(playlist)+1 in valid_input and len(valid_input)>1) :
                     break
@@ -195,21 +200,21 @@ def download_playlist(Type):
         except:
             print('Please Enter Int Number')
     ##end of validating
-    time = 0     ### to add time of each video to it
+    time_calculator = 0     ### to add time of each video to it
     ## If user choose select all option
     if user_input == [len(playlist)+1]:
-        for vid in playlist:
-            video = YouTube(vid)
+        for url in playlist:
+            video = YouTube(url)
             print(video.title)
             if Type == 'video':
                 video.streams.filter(res=quality,progressive=True).last().download()
             elif Type == 'audio':
                 video.streams.filter(type="audio").last().download()
             else:
-                time += video.length
+                time_calculator += video.length
     ## If user choose collection of videos
     else:
-        for i in user_input:
+        for i in valid_input:
             video = YouTube(playlist[i-1])
             print(video.title)
             if Type == 'video':
@@ -217,10 +222,75 @@ def download_playlist(Type):
             elif Type == 'audio':
                 video.streams.filter(type="audio").last().download()
             else:
-                time += video.length
+                time_calculator += video.length
     ## If user choose time To print Time of playlist
     if Type == 'time':
-        print(f"The Video Duration Is {time/60} min")
+        print(f"The Videos Duration Is {time_calculator/60} min")
+
+def search():
+    '''Function Take From User Input And Search For It in Youtube And Take From User The Videos That He Want To download It as Video Or Audio '''
+    
+    user_input = input("Search: ") ### The Input That Will Be Used In Search Operation
+    search = Search(user_input) 
+    table = PrettyTable(["Choose Number","Video Title"]) ## Show Results Of Search
+    videos_title =[video.title for video in search.results] ## Make List With Videos Title To Show it
+    index = 1
+    for video in videos_title:
+        table.add_row([index,video])
+        index +=1
+    print(table)
+    ## Validating The Input From User
+    while True:
+        user_input = list(map(int,input("Please Enter Videos' Index ( Seprated By Comma ( e.g:11,3,5 ) ) You Want To download : ").split(',')))
+        user_input = set(user_input)
+        valid_input = [x for x in user_input if x >= 1 and x <= len(search.results) ]
+        if valid_input:
+            break
+        else:
+            print("Please Enter Valid Videos' Index!!..\nAnd Try Again.")
+    ##End The Validating
+
+    videos_urls = [search.results[i].watch_url for i in valid_input] 
+
+    table = PrettyTable(["Choose Number","Option"]) 
+    table.add_row(["1","Video"])
+    table.add_row(["2","Audio"])
+    table.add_row(["3","Duration"])
+    print(table)
+
+    while True:
+        try:
+            user_input = int(input("Please Choose Option: "))
+            if user_input in [1,2,3]:
+                break
+            else:
+                print("Please Enter Valid Option!!..")
+        except:
+            print("Please Enter Int Number!!..")
+
+    if user_input == 1 or user_input == 2:
+        choose_path()
+
+    if user_input ==1:
+        choose_quality()
+
+    time_calculator = 0
+    
+    for video in videos_urls:
+        vid_yt_instance = YouTube(video)
+        print(vid_yt_instance.title)
+        if user_input == 1:
+            vid_yt_instance.streams.filter(progressive=True,res=quality).last().download()
+        elif user_input == 2:
+            vid_yt_instance.streams.filter(type="audio").last().download()
+        else:
+            time_calculator += vid_yt_instance.length
+    if user_input == 3:
+        print(f"The Videos Duration Is {time_calculator/60} min")
+
+
+
+
 
 
 if __name__ == '__main__':
