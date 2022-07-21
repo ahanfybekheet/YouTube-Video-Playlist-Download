@@ -2,28 +2,19 @@
 youTube (video/playlist) download is an application developed by python to download videos from youtube using url or download full playlist or some videos from it
 
 
-## User-Interface
+## Features For End-user
 
-- If It Your First Time To Use This App Enter 0.0 .
-- +------------+--------------------------------+
-- |     1      |             Video              
-- |     2      |            Playlist            
-- +------------+--------------------------------+
+  - [x] download videos by url
+  - [x] choose quality 
+  - [x] choose downloading path 
+  - [x] download the audio of video 
+ 
+  - [x] download playlist playlist.
+  - [x] choose specific videos from this playlist or select all videos 
+  - [x] choose downloading path.
+  - [x] choose your quality.
 
-## Features
-  - [x] The App Is Well Designed And Commented.
-  - [x] Using PEP-8.
 
-  - When You Download Video:
-    - [x] choose your download path.
-    - [x] choose your quality.
-    - [x] choose if you want video or audio.
-  
-  - When You Download Playlist:
-    - [x] choose your wanted videos from this playlist.
-    - [x] choose your path.
-    - [x] choose your quality.
-    - [x] choose if you want video or audio.
-  
-  - When You Choose Playlist Duration:
-    - [x] choose your wanted videos from this playlist. 
+  - [x] download playlist as audio 
+
+  - [x] knowing the duration of playlist or specific duration of videos in this playlist. 
